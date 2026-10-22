@@ -1,0 +1,12 @@
+[
+  {"claim_no": 20000001, "pol_id": 10000001, "claim_dt": "2024-08-15", "claim_type": "COLL", "amount": 3500.00, "claim_sts": "P", "claim_sts_label": "Paid",     "descr": "Rear-end collision on I-90"},
+  {"claim_no": 20000002, "pol_id": 10000001, "claim_dt": "2024-11-01", "claim_type": "LIAB", "amount": 1200.00, "claim_sts": "A", "claim_sts_label": "Approved", "descr": "Third-party liability claim"},
+  {"claim_no": 20000003, "pol_id": 10000002, "claim_dt": "2024-09-20", "claim_type": "FIRE", "amount": 8500.00, "claim_sts": "O", "claim_sts_label": "Open",     "descr": "Kitchen fire damage"},
+  {"claim_no": 20000004, "pol_id": 10000003, "claim_dt": "2024-06-05", "claim_type": "DISA", "amount": 5000.00, "claim_sts": "A", "claim_sts_label": "Approved", "descr": "Short-term disability payout"},
+  {"claim_no": 20000005, "pol_id": 10000004, "claim_dt": "2022-09-10", "claim_type": "COLL", "amount": 4200.00, "claim_sts": "P", "claim_sts_label": "Paid",     "descr": "Parking lot collision"},
+  {"claim_no": 20000006, "pol_id": 10000005, "claim_dt": "2025-03-01", "claim_type": "HOSP", "amount": 12000.00,"claim_sts": "O", "claim_sts_label": "Open",     "descr": "Emergency hospitalisation"},
+  {"claim_no": 20000007, "pol_id": 10000005, "claim_dt": "2025-05-14", "claim_type": "DRUG", "amount": 450.00,  "claim_sts": "A", "claim_sts_label": "Approved", "descr": "Prescription reimbursement"},
+  {"claim_no": 20000008, "pol_id": 10000007, "claim_dt": "2025-07-22", "claim_type": "COLL", "amount": 2100.00, "claim_sts": "O", "claim_sts_label": "Open",     "descr": "Side-swipe on highway"},
+  {"claim_no": 20000009, "pol_id": 10000007, "claim_dt": "2025-08-30", "claim_type": "WIND", "amount": 780.00,  "claim_sts": "R", "claim_sts_label": "Rejected",  "descr": "Hailstorm claim outside coverage"},
+  {"claim_no": 20000010, "pol_id": 10000008, "claim_dt": "2024-10-01", "claim_type": "DISA", "amount": 2500.00, "claim_sts": "P", "claim_sts_label": "Paid",     "descr": "Disability benefit paid"}
+]

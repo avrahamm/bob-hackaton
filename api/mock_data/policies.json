@@ -1,0 +1,10 @@
+[
+  {"pol_id": 10000001, "cust_id": 1000001, "pol_type": "AUTO", "start_dt": "2024-01-01", "end_dt": "2025-01-01", "premium": 1200.00, "status": "E", "status_label": "Expired"},
+  {"pol_id": 10000002, "cust_id": 1000001, "pol_type": "HOME", "start_dt": "2024-03-15", "end_dt": "2025-03-15", "premium": 2400.50, "status": "A", "status_label": "Active"},
+  {"pol_id": 10000003, "cust_id": 1000002, "pol_type": "LIFE", "start_dt": "2023-06-01", "end_dt": "2033-06-01", "premium": 800.00,  "status": "A", "status_label": "Active"},
+  {"pol_id": 10000004, "cust_id": 1000002, "pol_type": "AUTO", "start_dt": "2022-01-01", "end_dt": "2023-01-01", "premium": 950.75,  "status": "E", "status_label": "Expired"},
+  {"pol_id": 10000005, "cust_id": 1000003, "pol_type": "HEAL", "start_dt": "2025-01-01", "end_dt": "2026-01-01", "premium": 3100.00, "status": "A", "status_label": "Active"},
+  {"pol_id": 10000006, "cust_id": 1000003, "pol_type": "HOME", "start_dt": "2020-05-10", "end_dt": "2021-05-10", "premium": 1800.00, "status": "C", "status_label": "Cancelled"},
+  {"pol_id": 10000007, "cust_id": 1000004, "pol_type": "AUTO", "start_dt": "2025-04-01", "end_dt": "2026-04-01", "premium": 1050.00, "status": "A", "status_label": "Active"},
+  {"pol_id": 10000008, "cust_id": 1000005, "pol_type": "LIFE", "start_dt": "2024-07-01", "end_dt": "2034-07-01", "premium": 600.00,  "status": "A", "status_label": "Active"}
+]

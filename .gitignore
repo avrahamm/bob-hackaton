@@ -118,3 +118,10 @@ build/
 # DO NOT REMOVE ABOVE PATTERNS
 # Add project-specific patterns below
 # ============================================
+
+# Project-specific
+api/lib/*.jar
+api/lib/jt400*
+api/.venv/
+api/venv/
+api/.pytest_cache/
