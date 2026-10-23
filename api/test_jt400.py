@@ -30,7 +30,9 @@ JAR     = pathlib.Path(__file__).parent / os.getenv("JT400_JAR", "lib/jt400.jar"
 
 if not JAR.exists():
     sys.exit(f"ERROR: jt400.jar not found at {JAR}\n"
-             "Download from https://github.com/IBM/JTOpen/releases")
+             "Download with:\n"
+             "  curl -L https://github.com/IBM/JTOpen/releases/download/v21.0.7/jt400-21.0.7-java11.jar"
+             " -o api/lib/jt400.jar")
 
 import jpype
 import jaydebeapi
