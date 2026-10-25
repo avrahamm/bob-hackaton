@@ -53,9 +53,9 @@ Scope is **read-only**. No CREATE/UPDATE/DELETE anywhere in the MVP.
 - [x] JT400 JDBC from own Python code (JayDeBeApi + JPype1 in venv) — **confirmed 2026-10-22**
 - [x] How JayDeBeApi returns DYNAMIC RESULT SETS from CALL — **confirmed: `fetchall()` on same cursor after `CALL`**
 - [x] Whether PUB400 allows `CREATE PROCEDURE` returning result sets — **confirmed via TEST_PROC2**
-- [ ] Compile CUSTPF, POLICYPF, CLAIMPF, CLAIML1 on PUB400 ← **Day 2 next**
-- [ ] Load synthetic data (`challenge/data/synthetic_insert.sql`) on PUB400
-- [ ] Write + compile SQL stored procedures: LIST_POLICIES, GET_POLICY, LIST_CLAIMS
+- [x] Compile CUSTPF, POLICYPF, CLAIMPF, CLAIMLF1 on PUB400 ← **done 2026-10-25**
+- [x] Load synthetic data (`challenge/data/synthetic_insert.sql`) on PUB400 ← **done 2026-10-25**
+- [ ] Write + compile SQL stored procedures: LIST_POLICIES, GET_POLICY, LIST_CLAIMS ← **Day 2 next**
 - [ ] Call insurance stored procedures from FastAPI (flip `DATA_SOURCE=live`)
 - [ ] RPG service program: POLSRV with getPolicy, listPolicies, getClaims (native I/O)
 - [ ] Minimal web UI (Day 9–10)
@@ -111,7 +111,7 @@ bob-hackaton/
 │   │   ├── CUSTPF.pf       ← ✅ written, ready to upload+compile
 │   │   ├── POLICYPF.pf     ← ✅ written (REFFLD from CUSTPF)
 │   │   ├── CLAIMPF.pf      ← ✅ written (REFFLD from POLICYPF)
-│   │   └── CLAIML1.lf      ← ✅ written (PFILE CLAIMPF, key POLID+CLAIMNO)
+│   │   └── CLAIMLF1.lf     ← ✅ written (PFILE CLAIMPF, key POLID+CLAIMNO)
 │   ├── rpgle/              ← Day 4: POLSRV service program
 │   └── sql/                ← Day 2: stored procedures go here
 ├── api/                    ← FastAPI project
@@ -139,7 +139,7 @@ Compile order: CUSTPF → POLICYPF → CLAIMPF → CLAIML1.
 | CUSTPF | CUSTID(7S0) | Root — CUSTID defined here |
 | POLICYPF | POLID(8S0) | CUSTID via `REFFLD(CUSTID CUSTPF)` |
 | CLAIMPF | CLAIMNO(8S0) | POLID via `REFFLD(POLID POLICYPF)`; DATFMT(*ISO) on all dates |
-| CLAIML1 | POLID + CLAIMNO | Logical over CLAIMPF — used by RPG READE loop |
+| CLAIMLF1 | POLID + CLAIMNO | Logical over CLAIMPF — used by RPG READE loop |
 
 Status codes:
 - `POLICYPF.STATUS`: A=Active, E=Expired, C=Cancelled

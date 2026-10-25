@@ -1,5 +1,5 @@
      A*%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-     A* CLAIML1 -- Logical file over CLAIMPF
+     A* CLAIMLF1 -- Logical file over CLAIMPF
      A* Library: ESH101
      A*
      A* Purpose:
@@ -8,8 +8,8 @@
      A*   The RPG program CHAINs on POLID, then READEs while POLID matches.
      A*
      A* Compile after CLAIMPF exists:
-     A*   CRTLF FILE(ESH101/CLAIML1) SRCFILE(ESH101/QDDSSRC) SRCMBR(CLAIML1)
+     A*   CRTLF FILE(ESH101/CLAIMLF1) SRCFILE(ESH101/QDDSSRC) SRCMBR(CLAIMLF1)
      A*%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-     A          R CLAIMREC                  PFILE(CLAIMPF)
+     A          R CLAIMREC                  PFILE(ESH101/CLAIMPF)
      A          K POLID
      A          K CLAIMNO

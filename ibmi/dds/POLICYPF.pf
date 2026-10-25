@@ -11,7 +11,7 @@
      A          R POLREC
      A*                                     -- Identifiers
      A            POLID          8S 0       COLHDG('POLICY' 'ID')
-     A            CUSTID                    REFFLD(CUSTID CUSTPF)
+     A            CUSTID    R               REFFLD(CUSTID CUSTPF)
      A*                                     -- Policy details
      A            POLTYPE        4A         COLHDG('TYPE')
      A            STARTDT         L         COLHDG('START' 'DATE')

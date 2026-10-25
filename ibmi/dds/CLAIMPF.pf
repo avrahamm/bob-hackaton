@@ -12,7 +12,7 @@
      A          R CLAIMREC
      A*                                     -- Identifiers
      A            CLAIMNO        8S 0       COLHDG('CLAIM' 'NO')
-     A            POLID                     REFFLD(POLID POLICYPF)
+     A            POLID     R               REFFLD(POLID POLICYPF)
      A*                                     -- Claim details
      A            CLAIMDT         L         COLHDG('CLAIM' 'DATE')
      A                                      DATFMT(*ISO)
