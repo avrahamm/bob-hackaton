@@ -55,8 +55,8 @@ Scope is **read-only**. No CREATE/UPDATE/DELETE anywhere in the MVP.
 - [x] Whether PUB400 allows `CREATE PROCEDURE` returning result sets — **confirmed via TEST_PROC2**
 - [x] Compile CUSTPF, POLICYPF, CLAIMPF, CLAIMLF1 on PUB400 ← **done 2026-10-25**
 - [x] Load synthetic data (`challenge/data/synthetic_insert.sql`) on PUB400 ← **done 2026-10-25**
-- [ ] Write + compile SQL stored procedures: LIST_POLICIES, GET_POLICY, LIST_CLAIMS ← **Day 2 next**
-- [ ] Call insurance stored procedures from FastAPI (flip `DATA_SOURCE=live`)
+- [x] Write + compile SQL stored procedures: LIST_POLICIES, GET_POLICY, LIST_CLAIMS ← **done 2026-10-25**
+- [x] Call insurance stored procedures from FastAPI (flip `DATA_SOURCE=live`) ← **done 2026-10-25**
 - [ ] RPG service program: POLSRV with getPolicy, listPolicies, getClaims (native I/O)
 - [ ] Minimal web UI (Day 9–10)
 - [ ] Cloud deployment (deferred)
@@ -182,3 +182,4 @@ _Append a one-line entry after each Bob session._
 
 - 2026-10-21: Architecture decision, PUB400 capability analysis, project scaffold created.
 - 2026-10-22: JT400 JDBC confirmed working (Mac+Ubuntu). API scaffold built. Mock data wired. DDS sources written with REFFLD. Repo committed and pushed.
+- 2026-10-25: Day 2 complete. DDS compiled (CUSTPF→POLICYPF→CLAIMPF→CLAIMLF1). Synthetic data seeded via Python/JT400. SQL stored procedures written and deployed (LIST_POLICIES, GET_POLICY, LIST_CLAIMS). FastAPI wired to live IBM i — all 3 endpoints verified with curl against PUB400.

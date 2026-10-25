@@ -30,14 +30,15 @@ MOCK_DIR = pathlib.Path(__file__).parent / "mock_data"
 # ---------------------------------------------------------------------------
 
 class Policy(BaseModel):
-    pol_id:   int
-    cust_id:  int
-    pol_type: str
-    start_dt: str          # ISO date YYYY-MM-DD
-    end_dt:   str
-    premium:  float
-    status:   str          # A / E / C
-    status_label: str      # Active / Expired / Cancelled
+    pol_id:    int
+    cust_id:   int
+    cust_name: str
+    pol_type:  str
+    start_dt:  str          # ISO date YYYY-MM-DD
+    end_dt:    str
+    premium:   float
+    status:    str          # A / E / C
+    status_label: str       # Active / Expired / Cancelled
 
 class Claim(BaseModel):
     claim_no:   int
@@ -72,21 +73,11 @@ def list_policies(cust_id: Optional[int] = None):
             data = [p for p in data if p["cust_id"] == cust_id]
         return data
 
-    # Live path
+    # Live path — calls ESH101.LIST_POLICIES(IN_CUSTID)
     conn = get_connection()
     try:
         cur = conn.cursor()
-        if cust_id:
-            cur.execute(
-                "SELECT POLID,CUSTID,POLTYPE,STARTDT,ENDDT,PREMIUM,STATUS "
-                "FROM ESH101.POLICYPF WHERE CUSTID=? ORDER BY POLID",
-                [cust_id]
-            )
-        else:
-            cur.execute(
-                "SELECT POLID,CUSTID,POLTYPE,STARTDT,ENDDT,PREMIUM,STATUS "
-                "FROM ESH101.POLICYPF ORDER BY POLID"
-            )
+        cur.execute("CALL ESH101.LIST_POLICIES(?)", [cust_id or 0])
         rows = cur.fetchall()
     finally:
         conn.close()
@@ -103,21 +94,18 @@ def get_policy(pol_id: int):
             raise HTTPException(status_code=404, detail="Policy not found")
         return matches[0]
 
+    # Live path — calls ESH101.GET_POLICY(IN_POLID)
     conn = get_connection()
     try:
         cur = conn.cursor()
-        cur.execute(
-            "SELECT POLID,CUSTID,POLTYPE,STARTDT,ENDDT,PREMIUM,STATUS "
-            "FROM ESH101.POLICYPF WHERE POLID=?",
-            [pol_id]
-        )
-        row = cur.fetchone()
+        cur.execute("CALL ESH101.GET_POLICY(?)", [pol_id])
+        rows = cur.fetchall()
     finally:
         conn.close()
 
-    if row is None:
+    if not rows:
         raise HTTPException(status_code=404, detail="Policy not found")
-    return _row_to_policy(row)
+    return _row_to_policy(rows[0])
 
 
 @app.get("/policies/{pol_id}/claims", response_model=list[Claim])
@@ -126,14 +114,11 @@ def list_claims(pol_id: int):
         data = _load_mock("claims.json")
         return [c for c in data if c["pol_id"] == pol_id]
 
+    # Live path — calls ESH101.LIST_CLAIMS(IN_POLID)
     conn = get_connection()
     try:
         cur = conn.cursor()
-        cur.execute(
-            "SELECT CLAIMNO,POLID,CLAIMDT,CLAIMTYPE,AMOUNT,CLAIMSTS,DESCR "
-            "FROM ESH101.CLAIMPF WHERE POLID=? ORDER BY CLAIMNO",
-            [pol_id]
-        )
+        cur.execute("CALL ESH101.LIST_CLAIMS(?)", [pol_id])
         rows = cur.fetchall()
     finally:
         conn.close()
@@ -146,15 +131,18 @@ def list_claims(pol_id: int):
 # ---------------------------------------------------------------------------
 
 def _row_to_policy(r) -> dict:
-    status = str(r[6]).strip()
+    # Columns from LIST_POLICIES / GET_POLICY:
+    # 0:POLID  1:CUSTID  2:CUSTNAME  3:POLTYPE  4:STARTDT  5:ENDDT  6:PREMIUM  7:STATUS
+    status = str(r[7]).strip()
     return {
-        "pol_id":      int(r[0]),
-        "cust_id":     int(r[1]),
-        "pol_type":    str(r[2]).strip(),
-        "start_dt":    str(r[3]),   # JayDeBeApi returns date as string with date format=iso
-        "end_dt":      str(r[4]),
-        "premium":     float(r[5]),
-        "status":      status,
+        "pol_id":       int(r[0]),
+        "cust_id":      int(r[1]),
+        "cust_name":    str(r[2]).strip(),
+        "pol_type":     str(r[3]).strip(),
+        "start_dt":     str(r[4]),
+        "end_dt":       str(r[5]),
+        "premium":      float(r[6]),
+        "status":       status,
         "status_label": STATUS_LABELS.get(status, status),
     }
 
