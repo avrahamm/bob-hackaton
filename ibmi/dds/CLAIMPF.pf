@@ -1,0 +1,23 @@
+     A*%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+     A* CLAIMPF -- Insurance claim physical file
+     A* Library: ESH101
+     A*
+     A* POLID is borrowed from POLICYPF via REFFLD — documents the FK
+     A* relationship and ensures field attributes stay in sync.
+     A*
+     A* CLAIMSTS values: O=Open  A=Approved  R=Rejected  P=Paid
+     A* CLAIMTYPE values: COLL LIAB FIRE DISA HOSP DRUG WIND
+     A*%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+     A                                      UNIQUE
+     A          R CLAIMREC
+     A*                                     -- Identifiers
+     A            CLAIMNO        8S 0       COLHDG('CLAIM' 'NO')
+     A            POLID                     REFFLD(POLID POLICYPF)
+     A*                                     -- Claim details
+     A            CLAIMDT         L         COLHDG('CLAIM' 'DATE')
+     A                                      DATFMT(*ISO)
+     A            CLAIMTYPE      4A         COLHDG('TYPE')
+     A            AMOUNT        11P 2       COLHDG('AMOUNT')
+     A            CLAIMSTS       1A         COLHDG('STATUS')
+     A            DESCR         50A         COLHDG('DESCRIPTION')
+     A          K CLAIMNO

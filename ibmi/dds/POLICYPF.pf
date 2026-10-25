@@ -1,0 +1,23 @@
+     A*%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+     A* POLICYPF -- Insurance policy physical file
+     A* Library: ESH101
+     A*
+     A* CUSTID is borrowed from CUSTPF via REFFLD — documents the FK
+     A* relationship and ensures field attributes stay in sync.
+     A*
+     A* STATUS values: A=Active  E=Expired  C=Cancelled
+     A*%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+     A                                      UNIQUE
+     A          R POLREC
+     A*                                     -- Identifiers
+     A            POLID          8S 0       COLHDG('POLICY' 'ID')
+     A            CUSTID                    REFFLD(CUSTID CUSTPF)
+     A*                                     -- Policy details
+     A            POLTYPE        4A         COLHDG('TYPE')
+     A            STARTDT         L         COLHDG('START' 'DATE')
+     A                                      DATFMT(*ISO)
+     A            ENDDT           L         COLHDG('END' 'DATE')
+     A                                      DATFMT(*ISO)
+     A            PREMIUM        9P 2       COLHDG('PREMIUM')
+     A            STATUS         1A         COLHDG('STATUS')
+     A          K POLID

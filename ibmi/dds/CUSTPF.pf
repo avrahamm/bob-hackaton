@@ -1,0 +1,16 @@
+     A*%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+     A* CUSTPF  -- Customer physical file
+     A* Library: ESH101
+     A*
+     A* This is the root reference file. CUSTID is defined here and
+     A* referenced via REFFLD in POLICYPF.
+     A*%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+     A                                      UNIQUE
+     A          R CUSTREC
+     A*                                     -- Identifiers
+     A            CUSTID         7S 0       COLHDG('CUST' 'ID')
+     A*                                     -- Descriptive fields
+     A            CUSTNAME      40A         COLHDG('CUSTOMER NAME')
+     A            PHONE         15A         COLHDG('PHONE')
+     A            CITY          25A         COLHDG('CITY')
+     A          K CUSTID

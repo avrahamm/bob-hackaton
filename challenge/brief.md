@@ -1,6 +1,6 @@
 # Challenge brief — Insurance policy lookup: IBM i RPG to modern API
 
-_Last updated: 2026-10-22. Read this at the start of every Bob session._
+_Last updated: 2026-10-23. Read this at the start of every Bob session._
 
 ---
 
@@ -51,10 +51,14 @@ Scope is **read-only**. No CREATE/UPDATE/DELETE anywhere in the MVP.
 ## What is still open
 
 - [x] JT400 JDBC from own Python code (JayDeBeApi + JPype1 in venv) — **confirmed 2026-10-22**
-- [ ] Calling insurance stored procedures (LIST_POLICIES, GET_POLICY, LIST_CLAIMS) from Python
-- [ ] How JayDeBeApi returns DYNAMIC RESULT SETS from CALL
-- [ ] Whether PUB400 allows `CREATE PROCEDURE` returning result sets in ESH101
-  (✅ TEST_PROC2 already confirmed this works)
+- [x] How JayDeBeApi returns DYNAMIC RESULT SETS from CALL — **confirmed: `fetchall()` on same cursor after `CALL`**
+- [x] Whether PUB400 allows `CREATE PROCEDURE` returning result sets — **confirmed via TEST_PROC2**
+- [ ] Compile CUSTPF, POLICYPF, CLAIMPF, CLAIML1 on PUB400 ← **Day 2 next**
+- [ ] Load synthetic data (`challenge/data/synthetic_insert.sql`) on PUB400
+- [ ] Write + compile SQL stored procedures: LIST_POLICIES, GET_POLICY, LIST_CLAIMS
+- [ ] Call insurance stored procedures from FastAPI (flip `DATA_SOURCE=live`)
+- [ ] RPG service program: POLSRV with getPolicy, listPolicies, getClaims (native I/O)
+- [ ] Minimal web UI (Day 9–10)
 - [ ] Cloud deployment (deferred)
 
 ---
@@ -65,10 +69,10 @@ Scope is **read-only**. No CREATE/UPDATE/DELETE anywhere in the MVP.
 |---|---|
 | IBM i | PUB400.com, library ESH101, account confirmed |
 | Primary dev machine | Ubuntu PC — IBM ACS + 5250 emulator working, Bob IDE + IBM i extension working |
-| Secondary machine | Mac 2021 (64 GB) — Bob IDE + IBM i extension connected; ACS **not working** on Mac; no 5250 emulator on Mac |
-| FastAPI | Runs on Ubuntu (or Mac — no IBM i dependency for mock path) |
-| Python target | 3.11+ in a venv under `api/` |
-| JT400 jar | `api/lib/jt400.jar` — downloaded manually, **not in git** |
+| Secondary machine | Mac 2021 (64 GB) — Bob IDE + IBM i extension connected; ACS **not working** on Mac; no 5250 emulator on Mac; `tn5250` or Mochasoft as 5250 alternative |
+| FastAPI | Runs on Ubuntu **or Mac** (mock mode works anywhere) |
+| Python | 3.13 in `.venv` under `api/` (confirmed working on Mac) |
+| JT400 jar | `api/lib/jt400.jar` — `jt400-21.0.7-java11.jar`, **not in git** |
 | Credentials | In `api/.env` — **not in git** |
 
 ---
@@ -97,37 +101,59 @@ Scope is **read-only**. No CREATE/UPDATE/DELETE anywhere in the MVP.
 
 ```
 bob-hackaton/
-├── challenge/          ← this folder (brief, blueprint, demo notes)
-│   ├── brief.md        ← YOU ARE HERE
-│   ├── data/           ← synthetic SQL INSERT scripts
-│   └── blueprint.html  ← generated later
-├── ibmi/               ← DDS, RPGLE, SQL procedure sources
+├── challenge/              ← this folder (brief, blueprint, demo notes)
+│   ├── brief.md            ← YOU ARE HERE
+│   ├── data/
+│   │   └── synthetic_insert.sql  ← run in ACS to load test data
+│   └── blueprint.html      ← generated later
+├── ibmi/                   ← DDS, RPGLE, SQL procedure sources
 │   ├── dds/
-│   ├── rpgle/
-│   └── sql/
-├── api/                ← FastAPI project
-│   ├── main.py
-│   ├── db.py
+│   │   ├── CUSTPF.pf       ← ✅ written, ready to upload+compile
+│   │   ├── POLICYPF.pf     ← ✅ written (REFFLD from CUSTPF)
+│   │   ├── CLAIMPF.pf      ← ✅ written (REFFLD from POLICYPF)
+│   │   └── CLAIML1.lf      ← ✅ written (PFILE CLAIMPF, key POLID+CLAIMNO)
+│   ├── rpgle/              ← Day 4: POLSRV service program
+│   └── sql/                ← Day 2: stored procedures go here
+├── api/                    ← FastAPI project
+│   ├── main.py             ← 3 endpoints, live+mock switch
+│   ├── db.py               ← JT400 JDBC connection (explicit JVM start)
+│   ├── test_jt400.py       ← smoke test — ✅ passes against pub400
 │   ├── requirements.txt
-│   ├── .env.example
-│   └── lib/            ← jt400.jar goes here (NOT in git)
-└── ui/                 ← minimal web UI (later)
+│   ├── env.example         ← copy to .env, fill credentials
+│   ├── mock_data/
+│   │   ├── policies.json   ← golden fixture
+│   │   └── claims.json     ← golden fixture
+│   └── lib/                ← jt400.jar goes here (NOT in git)
+└── ui/                     ← minimal web UI (Day 9–10)
 ```
 
 ---
 
-## Physical files (DDS) — defined
+## Physical files (DDS) — defined and written
 
-| File | Key | Fields |
+DDS sources use `REFFLD` for shared key fields (FK documentation + single point of definition).
+Compile order: CUSTPF → POLICYPF → CLAIMPF → CLAIML1.
+
+| File | Key | Notable |
 |---|---|---|
-| CUSTPF | CUSTID | CUSTID(7S0), CUSTNAME(40A), PHONE(15A), CITY(25A) |
-| POLICYPF | POLID | POLID(8S0), CUSTID(7S0), POLTYPE(4A), STARTDT(L), ENDDT(L), PREMIUM(9P2), STATUS(1A) |
-| CLAIMPF | CLAIMNO | CLAIMNO(8S0), POLID(8S0), CLAIMDT(L), CLAIMTYPE(4A), AMOUNT(11P2), CLAIMSTS(1A), DESCR(50A) |
-| CLAIML1 | POLID, CLAIMNO | Logical over CLAIMPF, keyed by POLID+CLAIMNO |
+| CUSTPF | CUSTID(7S0) | Root — CUSTID defined here |
+| POLICYPF | POLID(8S0) | CUSTID via `REFFLD(CUSTID CUSTPF)` |
+| CLAIMPF | CLAIMNO(8S0) | POLID via `REFFLD(POLID POLICYPF)`; DATFMT(*ISO) on all dates |
+| CLAIML1 | POLID + CLAIMNO | Logical over CLAIMPF — used by RPG READE loop |
 
 Status codes:
 - `POLICYPF.STATUS`: A=Active, E=Expired, C=Cancelled
 - `CLAIMPF.CLAIMSTS`: O=Open, A=Approved, R=Rejected, P=Paid
+- `POLICYPF.POLTYPE`: AUTO, LIFE, HOME, HEAL
+- `CLAIMPF.CLAIMTYPE`: COLL, LIAB, FIRE, DISA, HOSP, DRUG, WIND
+
+### JT400 / Python type mapping (confirmed)
+| IBM i type | DDS | Python (JayDeBeApi) | JSON |
+|---|---|---|---|
+| Zoned decimal | 7S0, 8S0 | `int` or `Decimal` — cast with `int()` | number |
+| Packed decimal | 9P2, 11P2 | `Decimal` — cast with `float()` | number |
+| Date (ISO) | L + DATFMT(*ISO) | string `'YYYY-MM-DD'` | string |
+| Char | 40A, 4A, 1A | string with trailing spaces — use `.strip()` | string |
 
 ---
 
@@ -143,8 +169,16 @@ All responses: JSON, ISO dates (`YYYY-MM-DD`), decimals as numbers.
 
 ---
 
+## Day 2 — instructions for next Bob session
+
+Start a new task and open with:
+> "Read challenge/brief.md. We are on Day 2. DDS sources are in ibmi/dds/ — ready to upload and compile on PUB400. Next: compile them (CUSTPF→POLICYPF→CLAIMPF→CLAIML1), load synthetic_insert.sql, then write three SQL stored procedures in ibmi/sql/: LIST_POLICIES, GET_POLICY, LIST_CLAIMS. Then wire FastAPI to call them with DATA_SOURCE=live."
+
+---
+
 ## Bob usage log
 
 _Append a one-line entry after each Bob session._
 
 - 2026-10-21: Architecture decision, PUB400 capability analysis, project scaffold created.
+- 2026-10-22: JT400 JDBC confirmed working (Mac+Ubuntu). API scaffold built. Mock data wired. DDS sources written with REFFLD. Repo committed and pushed.
