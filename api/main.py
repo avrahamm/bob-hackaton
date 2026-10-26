@@ -15,6 +15,8 @@ Switch between live IBM i and mock data via DATA_SOURCE in .env:
 """
 
 from fastapi import FastAPI, HTTPException
+from fastapi.staticfiles import StaticFiles
+from fastapi.responses import FileResponse
 from pydantic import BaseModel
 from typing import Optional
 import json, pathlib
@@ -24,6 +26,9 @@ from db import DATA_SOURCE, get_connection
 app = FastAPI(title="Insurance Policy Lookup API", version="0.1.0")
 
 MOCK_DIR = pathlib.Path(__file__).parent / "mock_data"
+UI_DIR   = pathlib.Path(__file__).parent.parent / "ui"
+
+# Serve the web UI from /ui — mount after route definitions to avoid conflicts
 
 # ---------------------------------------------------------------------------
 # Pydantic models
@@ -52,6 +57,14 @@ class Claim(BaseModel):
 
 STATUS_LABELS   = {"A": "Active", "E": "Expired",  "C": "Cancelled"}
 CLAIM_STS_LABELS = {"O": "Open",  "A": "Approved", "R": "Rejected", "P": "Paid"}
+
+# ---------------------------------------------------------------------------
+# Source probe — used by UI badge
+# ---------------------------------------------------------------------------
+
+@app.get("/source")
+def source():
+    return {"source": DATA_SOURCE}
 
 # ---------------------------------------------------------------------------
 # Helper — load mock data
@@ -145,6 +158,12 @@ def _row_to_policy(r) -> dict:
         "status":       status,
         "status_label": STATUS_LABELS.get(status, status),
     }
+
+# ---------------------------------------------------------------------------
+# Static UI — served at /ui/
+# ---------------------------------------------------------------------------
+
+app.mount("/ui", StaticFiles(directory=str(UI_DIR), html=True), name="ui")
 
 def _row_to_claim(r) -> dict:
     sts = str(r[5]).strip()

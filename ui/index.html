@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Insurance Policy Lookup</title>
+  <style>
+    /* ── Reset & base ─────────────────────────────────────────── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: -apple-system, "Segoe UI", system-ui, sans-serif;
+      font-size: 15px;
+      line-height: 1.6;
+      background: #f4f6f9;
+      color: #1f2328;
+      min-height: 100vh;
+    }
+
+    /* ── Header ───────────────────────────────────────────────── */
+    header {
+      background: #1a3a5c;
+      color: #fff;
+      padding: 16px 24px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    header h1 { font-size: 1.1rem; font-weight: 600; letter-spacing: .02em; }
+    header .badge {
+      margin-left: auto;
+      font-size: 11px;
+      background: #0f6e3d;
+      color: #fff;
+      padding: 2px 8px;
+      border-radius: 10px;
+      font-weight: 600;
+      letter-spacing: .04em;
+    }
+    header .badge.mock { background: #7c5cd8; }
+
+    /* ── Layout ───────────────────────────────────────────────── */
+    main {
+      max-width: 860px;
+      margin: 32px auto;
+      padding: 0 16px;
+    }
+
+    /* ── Search bar ───────────────────────────────────────────── */
+    .search-row {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 28px;
+    }
+    .search-row input {
+      flex: 1;
+      padding: 10px 14px;
+      border: 1px solid #d0d7de;
+      border-radius: 6px;
+      font-size: 15px;
+      outline: none;
+      background: #fff;
+      transition: border-color .15s;
+    }
+    .search-row input:focus { border-color: #3b82d4; }
+    .search-row button {
+      padding: 10px 22px;
+      background: #1a3a5c;
+      color: #fff;
+      border: none;
+      border-radius: 6px;
+      font-size: 15px;
+      cursor: pointer;
+      font-weight: 600;
+      transition: background .15s;
+    }
+    .search-row button:hover { background: #24527f; }
+    .search-row button:disabled { background: #8fa3b8; cursor: default; }
+
+    /* ── Messages ─────────────────────────────────────────────── */
+    .msg {
+      padding: 12px 16px;
+      border-radius: 6px;
+      margin-bottom: 20px;
+      font-size: 14px;
+    }
+    .msg.error   { background: #fff0f0; border: 1px solid #f5c6c6; color: #b91c1c; }
+    .msg.info    { background: #f0f6ff; border: 1px solid #c6d9f5; color: #1d4ed8; }
+    .msg.spinner { color: #57606a; }
+
+    /* ── Policy card ──────────────────────────────────────────── */
+    .card {
+      background: #fff;
+      border: 1px solid #d0d7de;
+      border-radius: 8px;
+      padding: 24px;
+      margin-bottom: 28px;
+    }
+    .card-header {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      margin-bottom: 18px;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+    .card-title { font-size: 1.05rem; font-weight: 700; color: #1a3a5c; }
+    .card-sub   { font-size: 13px; color: #57606a; margin-top: 2px; }
+
+    .status-pill {
+      display: inline-block;
+      padding: 3px 12px;
+      border-radius: 12px;
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: .04em;
+      white-space: nowrap;
+    }
+    .status-A { background: #d1fae5; color: #065f46; }
+    .status-E { background: #fef3c7; color: #92400e; }
+    .status-C { background: #fee2e2; color: #991b1b; }
+
+    .card-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+      gap: 14px 24px;
+    }
+    .field label {
+      display: block;
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: .06em;
+      color: #57606a;
+      margin-bottom: 2px;
+    }
+    .field span { font-size: 15px; color: #1f2328; }
+
+    /* ── Claims section ───────────────────────────────────────── */
+    .section-title {
+      font-size: .85rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: .08em;
+      color: #57606a;
+      margin-bottom: 12px;
+      padding-bottom: 6px;
+      border-bottom: 1px solid #e5e7eb;
+    }
+
+    .no-claims { color: #57606a; font-size: 14px; font-style: italic; }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 14px;
+      background: #fff;
+      border: 1px solid #d0d7de;
+      border-radius: 8px;
+      overflow: hidden;
+    }
+    thead { background: #f7f8fa; }
+    th {
+      text-align: left;
+      padding: 10px 14px;
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: .06em;
+      color: #57606a;
+      border-bottom: 1px solid #d0d7de;
+    }
+    td {
+      padding: 10px 14px;
+      border-bottom: 1px solid #eaedf0;
+      vertical-align: top;
+    }
+    tr:last-child td { border-bottom: none; }
+    tr:hover td { background: #f7f8fa; }
+
+    .claim-sts {
+      display: inline-block;
+      padding: 2px 9px;
+      border-radius: 10px;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: .04em;
+    }
+    .sts-O { background: #dbeafe; color: #1e40af; }
+    .sts-A { background: #d1fae5; color: #065f46; }
+    .sts-R { background: #fee2e2; color: #991b1b; }
+    .sts-P { background: #ede9fe; color: #5b21b6; }
+
+    /* ── IBM i source note ────────────────────────────────────── */
+    .source-note {
+      font-size: 11px;
+      color: #8a92a3;
+      margin-top: 28px;
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+    <rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/>
+  </svg>
+  <h1>Insurance Policy Lookup</h1>
+  <span class="badge" id="source-badge">LIVE · IBM i</span>
+</header>
+
+<main>
+
+  <div class="search-row">
+    <input id="pol-input" type="number" placeholder="Enter Policy ID  (e.g. 10000002)"
+           min="1" autocomplete="off" />
+    <button id="search-btn" onclick="search()">Search</button>
+  </div>
+
+  <div id="message"></div>
+  <div id="policy-card"></div>
+  <div id="claims-section"></div>
+
+  <p class="source-note" id="source-note"></p>
+
+</main>
+
+<script>
+  // ── Config ─────────────────────────────────────────────────────
+  const API = (window.API_BASE || 'http://localhost:8000');
+
+  // ── Source badge ────────────────────────────────────────────────
+  async function detectSource() {
+    try {
+      const r = await fetch(API + '/source');
+      if (r.ok) {
+        const d = await r.json();
+        const badge = document.getElementById('source-badge');
+        const note  = document.getElementById('source-note');
+        if (d.source === 'mock') {
+          badge.textContent = 'MOCK DATA';
+          badge.classList.add('mock');
+          note.textContent = 'Running in mock mode — set DATA_SOURCE=live in api/.env to connect to IBM i.';
+        } else {
+          note.textContent = 'Live data · IBM i Db2 on PUB400 · ESH101 · stored procedures LIST_POLICIES / GET_POLICY / LIST_CLAIMS';
+        }
+      }
+    } catch (_) {}
+  }
+  detectSource();
+
+  // ── Allow Enter key in input ────────────────────────────────────
+  document.getElementById('pol-input').addEventListener('keydown', e => {
+    if (e.key === 'Enter') search();
+  });
+
+  // ── Helpers ─────────────────────────────────────────────────────
+  function msg(html, cls = '') {
+    document.getElementById('message').innerHTML =
+      html ? `<div class="msg ${cls}">${html}</div>` : '';
+  }
+  function clear() {
+    msg('');
+    document.getElementById('policy-card').innerHTML = '';
+    document.getElementById('claims-section').innerHTML = '';
+  }
+
+  function fmtDate(s) {
+    // s is YYYY-MM-DD; display as DD Mon YYYY
+    if (!s) return '—';
+    const [y, m, d] = s.split('-');
+    const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+    return `${parseInt(d)} ${months[parseInt(m)-1]} ${y}`;
+  }
+
+  function fmtAmount(n) {
+    return '$' + Number(n).toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+  }
+
+  const POLTYPE_LABELS = { AUTO: 'Auto', LIFE: 'Life', HOME: 'Home', HEAL: 'Health' };
+  const CLAIMTYPE_LABELS = {
+    COLL: 'Collision', LIAB: 'Liability', FIRE: 'Fire',
+    DISA: 'Disability', HOSP: 'Hospital', DRUG: 'Drug', WIND: 'Wind'
+  };
+
+  // ── Main search ─────────────────────────────────────────────────
+  async function search() {
+    const raw = document.getElementById('pol-input').value.trim();
+    if (!raw) { msg('Please enter a Policy ID.', 'info'); return; }
+    const polId = parseInt(raw);
+    if (isNaN(polId) || polId < 1) { msg('Policy ID must be a positive number.', 'error'); return; }
+
+    clear();
+    msg('Loading…', 'spinner');
+    document.getElementById('search-btn').disabled = true;
+
+    try {
+      // Fetch policy and claims in parallel
+      const [polResp, claimsResp] = await Promise.all([
+        fetch(`${API}/policies/${polId}`),
+        fetch(`${API}/policies/${polId}/claims`)
+      ]);
+
+      if (polResp.status === 404) {
+        msg(`No policy found with ID <strong>${polId}</strong>.`, 'error');
+        return;
+      }
+      if (!polResp.ok) throw new Error(`Server error ${polResp.status}`);
+
+      const policy = await polResp.json();
+      const claims = claimsResp.ok ? await claimsResp.json() : [];
+
+      msg('');
+      renderPolicy(policy);
+      renderClaims(claims);
+
+    } catch (err) {
+      msg(`Connection error: ${err.message}. Is the API running on ${API}?`, 'error');
+    } finally {
+      document.getElementById('search-btn').disabled = false;
+    }
+  }
+
+  // ── Render policy card ──────────────────────────────────────────
+  function renderPolicy(p) {
+    const statusCls = `status-${p.status}`;
+    document.getElementById('policy-card').innerHTML = `
+      <div class="card">
+        <div class="card-header">
+          <div>
+            <div class="card-title">Policy #${p.pol_id}</div>
+            <div class="card-sub">${p.cust_name} &nbsp;·&nbsp; Customer #${p.cust_id}</div>
+          </div>
+          <span class="status-pill ${statusCls}">${p.status_label}</span>
+        </div>
+        <div class="card-grid">
+          <div class="field"><label>Type</label><span>${POLTYPE_LABELS[p.pol_type] || p.pol_type}</span></div>
+          <div class="field"><label>Premium</label><span>${fmtAmount(p.premium)}</span></div>
+          <div class="field"><label>Start date</label><span>${fmtDate(p.start_dt)}</span></div>
+          <div class="field"><label>End date</label><span>${fmtDate(p.end_dt)}</span></div>
+        </div>
+      </div>
+    `;
+  }
+
+  // ── Render claims table ─────────────────────────────────────────
+  function renderClaims(claims) {
+    const el = document.getElementById('claims-section');
+    if (!claims.length) {
+      el.innerHTML = `<div class="section-title">Claims</div>
+                      <p class="no-claims">No claims on record for this policy.</p>`;
+      return;
+    }
+
+    const rows = claims.map(c => `
+      <tr>
+        <td>${c.claim_no}</td>
+        <td>${fmtDate(c.claim_dt)}</td>
+        <td>${CLAIMTYPE_LABELS[c.claim_type] || c.claim_type}</td>
+        <td style="text-align:right">${fmtAmount(c.amount)}</td>
+        <td><span class="claim-sts sts-${c.claim_sts}">${c.claim_sts_label}</span></td>
+        <td style="color:#57606a">${c.descr}</td>
+      </tr>`).join('');
+
+    el.innerHTML = `
+      <div class="section-title">Claims &nbsp;(${claims.length})</div>
+      <table>
+        <thead>
+          <tr>
+            <th>Claim #</th><th>Date</th><th>Type</th>
+            <th style="text-align:right">Amount</th><th>Status</th><th>Description</th>
+          </tr>
+        </thead>
+        <tbody>${rows}</tbody>
+      </table>`;
+  }
+</script>
+</body>
+</html>
