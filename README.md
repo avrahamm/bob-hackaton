@@ -1,7 +1,13 @@
 # IBM i Modernisation — Insurance Policy Lookup
 
-> **IBM Bob Hackathon 2026**  
+> **IBM Bob Hackathon 2026**
 > Demonstrating how a legacy IBM i green-screen workflow can be understood, documented, and exposed through a modern REST API and web UI — without rewriting the IBM i core.
+
+## 📽️ Demo Video
+
+[![IBM i Modernisation Demo](https://img.youtube.com/vi/fDGrY9yce34/0.jpg)](https://youtu.be/fDGrY9yce34)
+
+**[▶ Watch the 3-minute demo on YouTube](https://youtu.be/fDGrY9yce34)**
 
 ---
 
